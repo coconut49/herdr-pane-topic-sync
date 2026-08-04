@@ -16,10 +16,13 @@
 
 import { spawnSync } from "node:child_process";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 
 const herdr = process.env.HERDR_BIN_PATH || "herdr";
-const stateDir = process.env.HERDR_PLUGIN_STATE_DIR || "/tmp";
+// herdr sets HERDR_PLUGIN_STATE_DIR; the fallback is only for running this by
+// hand. `tmpdir()` rather than "/tmp" so that path is valid on Windows too.
+const stateDir = process.env.HERDR_PLUGIN_STATE_DIR || tmpdir();
 const configDir = process.env.HERDR_PLUGIN_CONFIG_DIR || "";
 const statePath = join(stateDir, "pane-topic-sync-state.json");
 

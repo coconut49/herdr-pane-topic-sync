@@ -41,6 +41,9 @@ herdr server reload-config
 
 Requires [bun](https://bun.sh) on `PATH` (herdr runs `bun sync-labels.js`).
 
+Runs on macOS, Linux, and Windows — the script only uses cross-platform stdlib
+and shells out to the `herdr` CLI itself.
+
 To see topics on pane borders too, add to `~/.config/herdr/config.toml`:
 
 ```toml
