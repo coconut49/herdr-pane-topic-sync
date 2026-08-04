@@ -23,7 +23,9 @@ Plain (non-agent) shell panes are left untouched.
 - Deliberately does **not** subscribe to `*.renamed` events, so its own renames
   can't feed back into a loop.
 - Gates all writes through a state file (`$HERDR_PLUGIN_STATE_DIR/pane-topic-sync-state.json`),
-  so `rename` is only called when a topic actually changed — no churn.
+  so `rename` is only called when a topic actually changed — no churn. The same
+  file records which labels are the plugin's own, so manual renames survive (see
+  [Manual renames are respected](#manual-renames-are-respected)).
 - "First pane" is resolved from `herdr pane layout` rect coordinates, sorted by
   `(y, x)`, so it's the visually top-left pane regardless of split order.
 
@@ -68,17 +70,38 @@ documented set. Summary:
 | `max_label_length` | `60` | Truncate longer labels (applied after formatting). |
 | `tab_format` | `"{topic}"` | Template; tokens `{topic}` `{agent}` `{workspace}` `{n}` (tab switch number). |
 | `pane_format` | `"{topic}"` | Template; tokens `{topic}` `{agent}` `{workspace}`. |
+| `respect_manual_names` | `true` | Never overwrite a pane/tab you renamed yourself. See below. |
 
 Examples: `tab_format = "{n}· {topic}"` keeps the tab switch number;
 `pane_format = "{agent}: {topic}"` prefixes the agent name.
 
-### A note on manual renames
+### Manual renames are respected
 
-The plugin auto-clobbers tab names on the next event, because herdr exposes no
-provenance for a label (it can't tell a human-set name from a plugin-set one).
-If you need a tab to keep a fixed name, either set `sync_tabs = false`, or open
-an issue — a `pin_prefix` opt-out (skip labels starting with a chosen char) is
-the clean way to support this without unreliable heuristics.
+Rename a pane or tab yourself and the plugin backs off it permanently — no
+special characters or marker prefixes in your labels. herdr exposes no
+provenance for a label, so ownership is inferred from three signals:
+
+1. **Never named.** A pane's label is `null` until something names it; a tab's
+   label defaults to its tab number (`"2"`). Either state is unclaimed, so the
+   plugin adopts it.
+2. **Still ours.** The live label is verbatim what the plugin last wrote (from
+   the state file). If it differs, you changed it — hands off.
+3. **Reads like ours.** The live label is exactly what the plugin *would* write
+   right now, for any agent pane in that tab. This makes the plugin self-healing:
+   delete the state file and it re-adopts everything it recognizes instead of
+   freezing, while still leaving your manual names alone.
+
+To hand a name back to the plugin, return it to its unclaimed state:
+
+```sh
+herdr pane rename <pane_id> --clear   # panes: clears the label
+herdr tab rename <tab_id> 2           # tabs: rename to its tab number
+```
+
+Set `respect_manual_names = false` for the old always-overwrite behavior.
+
+Caveat: renaming a tab to a plain number is indistinguishable from a tab nobody
+has named, so the plugin will claim it.
 
 ## License
 

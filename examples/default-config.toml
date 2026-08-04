@@ -10,6 +10,15 @@
 sync_panes = true
 sync_tabs  = true
 
+# Never overwrite a pane or tab you renamed yourself. Once you rename one by
+# hand, the plugin stops managing that pane/tab entirely -- its name is yours
+# until you hand it back:
+#   pane -> herdr pane rename <pane_id> --clear   (clears the label)
+#   tab  -> rename it to its tab number, e.g. "2" (tabs have no --clear)
+# Set false for the old behavior, where every label is overwritten on the next
+# event.
+respect_manual_names = true
+
 # Which pane's topic names a multi-pane tab:
 #   "first"  = the top-left pane (reading order)
 #   "active" = the pane you last focused *within that tab* (herdr tracks this
