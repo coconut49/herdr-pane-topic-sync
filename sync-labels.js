@@ -163,8 +163,8 @@ function loadState() {
 //
 // The virgin default differs by kind, per the herdr API:
 //   pane -> label is null (PaneInfo.label is nullable; unset until first rename)
-//   tab  -> label is its number as a string, e.g. "2" (TabInfo.label is
-//           non-nullable, so herdr seeds it from the tab number instead)
+//   tab  -> label is a bare number, e.g. "2" (TabInfo.label is non-nullable,
+//           so herdr seeds it from the tab's position instead)
 function isOwned(live, lastWritten, virgin, desired) {
   return live === virgin || live === desired || (lastWritten !== undefined && live === lastWritten);
 }
@@ -289,7 +289,11 @@ function main() {
         const m = info.get(p.pane_id);
         return m !== undefined && tab.label === labelFor(m);
       });
-      const owned = plausiblyOurs || isOwned(tab.label, state.tabs[tabId], String(tab.number), label);
+      // herdr seeds a tab's label with its position, while `tab.number` is a
+      // never-reused id counter; after any tab close they diverge, so treat any
+      // bare number as the unclaimed default.
+      const virgin = /^\d+$/.test(tab.label) ? tab.label : null;
+      const owned = plausiblyOurs || isOwned(tab.label, state.tabs[tabId], virgin, label);
       if (cfg.respect_manual_names && !owned) {
         // Renamed by hand. Drop our state entry too, so the way back under
         // management is to rename it to its tab number (its virgin default).
