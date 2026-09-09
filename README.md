@@ -39,7 +39,7 @@ herdr plugin link ~/repos/herdr-pane-topic-sync
 herdr server reload-config
 ```
 
-Requires [bun](https://bun.sh) on `PATH` (herdr runs `bun sync-labels.js`).
+Requires [Node.js](https://nodejs.org) 22 or newer on `PATH` (herdr runs `node sync-labels.mjs`).
 
 Runs on macOS, Linux, and Windows — the script only uses cross-platform stdlib
 and shells out to the `herdr` CLI itself.
