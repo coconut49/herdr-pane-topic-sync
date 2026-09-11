@@ -39,7 +39,12 @@ herdr plugin link ~/repos/herdr-pane-topic-sync
 herdr server reload-config
 ```
 
-Requires [Node.js](https://nodejs.org) 22 or newer on `PATH` (herdr runs `node sync-labels.mjs`).
+Requires [Node.js](https://nodejs.org) 22 or newer. On macOS and Linux herdr runs
+`sh sync-labels.sh`, which prepends the usual user and Homebrew bin directories to
+`PATH` before starting node — a herdr server started over SSH inherits sshd's
+minimal `PATH`, which would otherwise not find node. On Windows herdr runs
+`node sync-labels.mjs` directly, so node must be on `PATH`; the manual `sync`
+action is not available there.
 
 Runs on macOS, Linux, and Windows — the script only uses cross-platform stdlib
 and shells out to the `herdr` CLI itself.

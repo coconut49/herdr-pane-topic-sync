@@ -1,49 +1,102 @@
 id = "dan.pane-topic-sync"
 name = "Pane Topic Sync"
-version = "0.2.1"
+version = "0.3.1"
 min_herdr_version = "0.7.0"
 description = "Rename each agent pane to its live topic (terminal_title_stripped) and name each tab after its first pane's topic."
 platforms = ["macos", "linux", "windows"]
+
+# On macOS and Linux the sh wrapper puts the usual bin dirs on PATH first, because a
+# Herdr server started over SSH inherits sshd's minimal PATH and cannot find node.
+# Action ids must be unique, so the manual action is only declared there.
 
 # Manual trigger, e.g. `herdr plugin action invoke dan.pane-topic-sync.sync`
 [[actions]]
 id = "sync"
 title = "Sync pane + tab topics"
 contexts = ["workspace", "tab", "pane"]
-command = ["node", "sync-labels.mjs"]
+platforms = ["macos", "linux"]
+command = ["sh", "sync-labels.sh"]
 
 # Re-sync on anything that could change a pane's topic, its agent, or the layout.
 # NOTE: deliberately NOT subscribing to *.renamed — our own renames must not re-trigger us.
 [[events]]
 on = "workspace.focused"
+platforms = ["macos", "linux"]
+command = ["sh", "sync-labels.sh"]
+
+[[events]]
+on = "workspace.focused"
+platforms = ["windows"]
 command = ["node", "sync-labels.mjs"]
 
 [[events]]
 on = "tab.focused"
+platforms = ["macos", "linux"]
+command = ["sh", "sync-labels.sh"]
+
+[[events]]
+on = "tab.focused"
+platforms = ["windows"]
 command = ["node", "sync-labels.mjs"]
 
 [[events]]
 on = "pane.focused"
+platforms = ["macos", "linux"]
+command = ["sh", "sync-labels.sh"]
+
+[[events]]
+on = "pane.focused"
+platforms = ["windows"]
 command = ["node", "sync-labels.mjs"]
 
 [[events]]
 on = "pane.created"
+platforms = ["macos", "linux"]
+command = ["sh", "sync-labels.sh"]
+
+[[events]]
+on = "pane.created"
+platforms = ["windows"]
 command = ["node", "sync-labels.mjs"]
 
 [[events]]
 on = "pane.closed"
+platforms = ["macos", "linux"]
+command = ["sh", "sync-labels.sh"]
+
+[[events]]
+on = "pane.closed"
+platforms = ["windows"]
 command = ["node", "sync-labels.mjs"]
 
 [[events]]
 on = "pane.moved"
+platforms = ["macos", "linux"]
+command = ["sh", "sync-labels.sh"]
+
+[[events]]
+on = "pane.moved"
+platforms = ["windows"]
 command = ["node", "sync-labels.mjs"]
 
 [[events]]
 on = "pane.agent_detected"
+platforms = ["macos", "linux"]
+command = ["sh", "sync-labels.sh"]
+
+[[events]]
+on = "pane.agent_detected"
+platforms = ["windows"]
 command = ["node", "sync-labels.mjs"]
 
 # The important one: fires when an agent flips idle<->working, which is when
 # Claude sets a fresh topic for the task it just started.
 [[events]]
 on = "pane.agent_status_changed"
+platforms = ["macos", "linux"]
+command = ["sh", "sync-labels.sh"]
+
+[[events]]
+on = "pane.agent_status_changed"
+platforms = ["windows"]
 command = ["node", "sync-labels.mjs"]
